@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "UK Bite Reports",
+    "slug": "uk-bite-reports",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B1D33"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ukbitereports.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "UK Bite Reports needs camera access to photograph your catches.",
+        "NSPhotoLibraryUsageDescription": "UK Bite Reports needs photo library access to upload catch photos.",
+        "NSLocationWhenInUseUsageDescription": "UK Bite Reports uses your location to tag your fishing spots."
+      },
+      "config": {
+        "googleMapsApiKey": "YOUR_IOS_MAPS_KEY"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0B1D33"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.ukbitereports.app",
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "READ_EXTERNAL_STORAGE"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "YOUR_ANDROID_MAPS_KEY"
+        }
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-image-picker",
+      "expo-location"
+    ]
+  }
+}

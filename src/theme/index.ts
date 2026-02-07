@@ -1,0 +1,133 @@
+import { Appearance } from "react-native";
+
+const palette = {
+  deepBlue: "#0B1D33",
+  navy: "#132A46",
+  midBlue: "#1A5276",
+  teal: "#148F77",
+  green: "#1E8449",
+  lightGreen: "#27AE60",
+  accent: "#2ECC71",
+  gold: "#F39C12",
+  white: "#FFFFFF",
+  offWhite: "#F8F9FA",
+  lightGrey: "#E9ECEF",
+  midGrey: "#ADB5BD",
+  darkGrey: "#495057",
+  charcoal: "#343A40",
+  black: "#212529",
+  red: "#E74C3C",
+  transparent: "transparent",
+};
+
+export const lightTheme = {
+  colors: {
+    primary: palette.midBlue,
+    primaryDark: palette.navy,
+    secondary: palette.teal,
+    accent: palette.accent,
+    background: palette.offWhite,
+    surface: palette.white,
+    surfaceElevated: palette.white,
+    text: palette.black,
+    textSecondary: palette.darkGrey,
+    textMuted: palette.midGrey,
+    border: palette.lightGrey,
+    error: palette.red,
+    success: palette.lightGreen,
+    warning: palette.gold,
+    tabBar: palette.white,
+    tabBarActive: palette.midBlue,
+    tabBarInactive: palette.midGrey,
+    card: palette.white,
+    cardBorder: palette.lightGrey,
+    inputBackground: palette.white,
+    inputBorder: palette.lightGrey,
+    placeholder: palette.midGrey,
+    overlay: "rgba(0,0,0,0.5)",
+    headerBackground: palette.midBlue,
+    headerText: palette.white,
+    transparent: palette.transparent,
+    midGrey: palette.midGrey,
+    statusBar: "dark" as "dark" | "light",
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48,
+  },
+  borderRadius: {
+    sm: 6,
+    md: 12,
+    lg: 16,
+    xl: 24,
+    full: 9999,
+  },
+  fontSize: {
+    xs: 11,
+    sm: 13,
+    md: 15,
+    lg: 17,
+    xl: 20,
+    xxl: 28,
+    hero: 36,
+  },
+  shadow: {
+    sm: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.08,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    md: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.12,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    lg: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.16,
+      shadowRadius: 8,
+      elevation: 5,
+    },
+  },
+};
+
+export const darkTheme: typeof lightTheme = {
+  ...lightTheme,
+  colors: {
+    ...lightTheme.colors,
+    primary: palette.teal,
+    primaryDark: palette.deepBlue,
+    background: palette.deepBlue,
+    surface: palette.navy,
+    surfaceElevated: palette.charcoal,
+    text: palette.white,
+    textSecondary: palette.lightGrey,
+    textMuted: palette.midGrey,
+    border: palette.charcoal,
+    tabBar: palette.navy,
+    tabBarActive: palette.accent,
+    tabBarInactive: palette.midGrey,
+    card: palette.navy,
+    cardBorder: palette.charcoal,
+    inputBackground: palette.navy,
+    inputBorder: palette.charcoal,
+    headerBackground: palette.navy,
+    headerText: palette.white,
+    statusBar: "light" as "dark" | "light",
+  },
+};
+
+export type Theme = typeof lightTheme;
+
+export function getTheme(colorScheme?: string | null): Theme {
+  return colorScheme === "dark" ? darkTheme : lightTheme;
+}
