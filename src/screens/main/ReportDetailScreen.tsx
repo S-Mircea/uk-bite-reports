@@ -11,7 +11,6 @@ import {
   Platform,
   Dimensions,
   ActivityIndicator,
-  FlatList,
 } from "react-native";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,7 +22,7 @@ import {
   addComment,
   toggleLike,
   hasUserLiked,
-} from "../../utils/firestore";
+} from "../../utils/database";
 import { useTheme } from "../../hooks/useTheme";
 import { useAuth } from "../../hooks/useAuth";
 import { Avatar } from "../../components/Avatar";
@@ -60,7 +59,7 @@ export function ReportDetailScreen() {
       setComments(commentsData);
 
       if (user && reportData) {
-        const isLiked = await hasUserLiked(reportData.id, user.uid);
+        const isLiked = await hasUserLiked(reportData.id, user.id);
         setLiked(isLiked);
       }
     } catch (err) {
@@ -76,11 +75,11 @@ export function ReportDetailScreen() {
 
   async function handleLike() {
     if (!user || !report) return;
-    const nowLiked = await toggleLike(report.id, user.uid);
+    const nowLiked = await toggleLike(report.id, user.id);
     setLiked(nowLiked);
     setReport((prev) =>
       prev
-        ? { ...prev, likesCount: prev.likesCount + (nowLiked ? 1 : -1) }
+        ? { ...prev, likes_count: prev.likes_count + (nowLiked ? 1 : -1) }
         : prev
     );
   }
@@ -90,18 +89,17 @@ export function ReportDetailScreen() {
     setSendingComment(true);
     try {
       await addComment({
-        reportId: report.id,
-        userId: user.uid,
-        userName: user.displayName ?? "Angler",
-        userAvatar: user.photoURL ?? undefined,
+        report_id: report.id,
+        user_id: user.id,
+        user_name: user.user_metadata?.display_name ?? "Angler",
+        user_avatar: user.user_metadata?.avatar_url,
         text: newComment.trim(),
       });
       setNewComment("");
-      // Refresh comments
       const updated = await getComments(report.id);
       setComments(updated);
       setReport((prev) =>
-        prev ? { ...prev, commentsCount: prev.commentsCount + 1 } : prev
+        prev ? { ...prev, comments_count: prev.comments_count + 1 } : prev
       );
     } catch (err) {
       console.error("Comment error:", err);
@@ -126,28 +124,25 @@ export function ReportDetailScreen() {
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       <ScrollView contentContainerStyle={styles.scroll}>
-        {/* Photo */}
         <Image
-          source={{ uri: report.photoUrl }}
+          source={{ uri: report.photo_url }}
           style={styles.photo}
           resizeMode="cover"
         />
 
-        {/* Header */}
         <View style={styles.body}>
           <View style={styles.userRow}>
-            <Avatar uri={report.userAvatar} name={report.userName} size={44} />
+            <Avatar uri={report.user_avatar} name={report.user_name} size={44} />
             <View style={styles.userInfo}>
               <Text style={[styles.userName, { color: theme.colors.text }]}>
-                {report.userName}
+                {report.user_name}
               </Text>
               <Text style={[styles.date, { color: theme.colors.textMuted }]}>
-                {formatDate(report.caughtAt)}
+                {formatDate(report.caught_at)}
               </Text>
             </View>
           </View>
 
-          {/* Species badge */}
           <View
             style={[
               styles.speciesBadge,
@@ -160,36 +155,33 @@ export function ReportDetailScreen() {
             </Text>
           </View>
 
-          {/* Stats */}
           <View style={styles.statsRow}>
             <StatItem
               icon="scale-outline"
               label="Weight"
-              value={formatWeight(report.weightLb, report.weightOz)}
+              value={formatWeight(report.weight_lb, report.weight_oz)}
               theme={theme}
             />
             <StatItem
               icon="resize-outline"
               label="Length"
-              value={formatLength(report.lengthInches)}
+              value={formatLength(report.length_inches)}
               theme={theme}
             />
             <StatItem
               icon="location-outline"
               label="Location"
-              value={report.locationName}
+              value={report.location_name}
               theme={theme}
             />
           </View>
 
-          {/* Notes */}
           {report.notes ? (
             <Text style={[styles.notes, { color: theme.colors.text }]}>
               {report.notes}
             </Text>
           ) : null}
 
-          {/* Like / Comment counts */}
           <View style={styles.actionsRow}>
             <TouchableOpacity onPress={handleLike} style={styles.actionButton}>
               <Ionicons
@@ -198,18 +190,17 @@ export function ReportDetailScreen() {
                 color={liked ? theme.colors.error : theme.colors.textMuted}
               />
               <Text style={[styles.actionCount, { color: theme.colors.textSecondary }]}>
-                {report.likesCount}
+                {report.likes_count}
               </Text>
             </TouchableOpacity>
             <View style={styles.actionButton}>
               <Ionicons name="chatbubble-outline" size={22} color={theme.colors.textMuted} />
               <Text style={[styles.actionCount, { color: theme.colors.textSecondary }]}>
-                {report.commentsCount}
+                {report.comments_count}
               </Text>
             </View>
           </View>
 
-          {/* Comments section */}
           <View
             style={[styles.divider, { backgroundColor: theme.colors.border }]}
           />
@@ -224,10 +215,10 @@ export function ReportDetailScreen() {
           ) : (
             comments.map((c) => (
               <View key={c.id} style={styles.commentItem}>
-                <Avatar uri={c.userAvatar} name={c.userName} size={30} />
+                <Avatar uri={c.user_avatar} name={c.user_name} size={30} />
                 <View style={styles.commentBody}>
                   <Text style={[styles.commentUser, { color: theme.colors.text }]}>
-                    {c.userName}
+                    {c.user_name}
                   </Text>
                   <Text style={[styles.commentText, { color: theme.colors.textSecondary }]}>
                     {c.text}
@@ -239,7 +230,6 @@ export function ReportDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Comment input */}
       <View
         style={[
           styles.commentBar,

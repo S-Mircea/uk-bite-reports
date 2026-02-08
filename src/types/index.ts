@@ -1,49 +1,47 @@
-import { Timestamp } from "firebase/firestore";
-
 export interface User {
-  uid: string;
+  id: string;
   email: string;
-  displayName: string;
+  display_name: string;
   postcode: string;
-  avatarUrl?: string;
-  createdAt: Timestamp;
+  avatar_url?: string;
+  created_at: string;
 }
 
 export interface CatchReport {
   id: string;
-  userId: string;
-  userName: string;
-  userAvatar?: string;
-  photoUrl: string;
+  user_id: string;
+  user_name: string;
+  user_avatar?: string;
+  photo_url: string;
   species: string;
-  weightLb?: number;
-  weightOz?: number;
-  lengthInches?: number;
-  locationName: string;
+  weight_lb?: number;
+  weight_oz?: number;
+  length_inches?: number;
+  location_name: string;
   latitude: number;
   longitude: number;
   notes: string;
-  caughtAt: Timestamp;
-  createdAt: Timestamp;
-  likesCount: number;
-  commentsCount: number;
+  caught_at: string;
+  created_at: string;
+  likes_count: number;
+  comments_count: number;
 }
 
 export interface Comment {
   id: string;
-  reportId: string;
-  userId: string;
-  userName: string;
-  userAvatar?: string;
+  report_id: string;
+  user_id: string;
+  user_name: string;
+  user_avatar?: string;
   text: string;
-  createdAt: Timestamp;
+  created_at: string;
 }
 
 export interface Like {
   id: string;
-  reportId: string;
-  userId: string;
-  createdAt: Timestamp;
+  report_id: string;
+  user_id: string;
+  created_at: string;
 }
 
 export type RootStackParamList = {

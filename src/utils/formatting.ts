@@ -1,9 +1,8 @@
-import { Timestamp } from "firebase/firestore";
-import { format, formatDistanceToNow, isToday, isYesterday } from "date-fns";
+import { format, formatDistanceToNow, isToday, isYesterday, parseISO } from "date-fns";
 import { enGB } from "date-fns/locale";
 
-export function formatDate(timestamp: Timestamp): string {
-  const date = timestamp.toDate();
+export function formatDate(dateStr: string): string {
+  const date = parseISO(dateStr);
   if (isToday(date)) {
     return `Today at ${format(date, "HH:mm", { locale: enGB })}`;
   }
@@ -13,8 +12,8 @@ export function formatDate(timestamp: Timestamp): string {
   return format(date, "d MMM yyyy 'at' HH:mm", { locale: enGB });
 }
 
-export function formatTimeAgo(timestamp: Timestamp): string {
-  return formatDistanceToNow(timestamp.toDate(), {
+export function formatTimeAgo(dateStr: string): string {
+  return formatDistanceToNow(parseISO(dateStr), {
     addSuffix: true,
     locale: enGB,
   });

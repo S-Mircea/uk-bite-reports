@@ -33,8 +33,8 @@ yarn-error.*
 # local env files
 .env*.local
 
-# Firebase config (contains API keys)
-src/config/firebase.ts
+# Supabase config (contains API keys)
+src/config/supabase.ts
 
 # typescript
 *.tsbuildinfo

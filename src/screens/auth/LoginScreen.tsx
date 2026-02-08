@@ -11,9 +11,8 @@ import {
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
-import { signInWithEmailAndPassword } from "firebase/auth";
 
-import { auth } from "../../config/firebase";
+import { supabase } from "../../config/supabase";
 import { RootStackParamList } from "../../types";
 import { loginSchema } from "../../utils/validation";
 import { useTheme } from "../../hooks/useTheme";
@@ -47,16 +46,15 @@ export function LoginScreen() {
 
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+
+      if (error) throw error;
     } catch (err: any) {
-      const code = err.code;
-      if (code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential") {
-        Alert.alert("Login Failed", "Invalid email or password. Please try again.");
-      } else if (code === "auth/too-many-requests") {
-        Alert.alert("Too Many Attempts", "Please wait a moment and try again.");
-      } else {
-        Alert.alert("Error", "Something went wrong. Please try again.");
-      }
+      console.error("Login error:", err);
+      Alert.alert("Login Failed", err.message || "Invalid email or password.");
     } finally {
       setLoading(false);
     }

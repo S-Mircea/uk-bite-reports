@@ -8,10 +8,9 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { DocumentSnapshot } from "firebase/firestore";
 
 import { CatchReport, RootStackParamList } from "../../types";
-import { getReports } from "../../utils/firestore";
+import { getReports } from "../../utils/database";
 import { useTheme } from "../../hooks/useTheme";
 import { ReportCard } from "../../components/ReportCard";
 import { EmptyState } from "../../components/EmptyState";
@@ -24,18 +23,15 @@ export function HomeScreen() {
   const theme = useTheme();
 
   const [reports, setReports] = useState<CatchReport[]>([]);
-  const [lastDoc, setLastDoc] = useState<DocumentSnapshot | null>(null);
+  const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const fetchReports = useCallback(async (refresh = false) => {
+  const fetchReports = useCallback(async (pageNum: number, refresh = false) => {
     try {
-      const cursor = refresh ? undefined : lastDoc ?? undefined;
-      const { reports: newReports, lastVisible } = await getReports(
-        refresh ? undefined : (cursor as DocumentSnapshot | undefined)
-      );
+      const { reports: newReports, hasMore: more } = await getReports(pageNum);
 
       if (refresh) {
         setReports(newReports);
@@ -43,33 +39,32 @@ export function HomeScreen() {
         setReports((prev) => [...prev, ...newReports]);
       }
 
-      setLastDoc(lastVisible);
-      setHasMore(newReports.length >= 10);
+      setHasMore(more);
+      setPage(pageNum);
     } catch (err) {
       console.error("Failed to fetch reports:", err);
     }
-  }, [lastDoc]);
+  }, []);
 
   useEffect(() => {
     (async () => {
-      await fetchReports(true);
+      await fetchReports(0, true);
       setLoading(false);
     })();
   }, []);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    setLastDoc(null);
-    await fetchReports(true);
+    await fetchReports(0, true);
     setRefreshing(false);
-  }, []);
+  }, [fetchReports]);
 
   const handleLoadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);
-    await fetchReports(false);
+    await fetchReports(page + 1, false);
     setLoadingMore(false);
-  }, [loadingMore, hasMore, fetchReports]);
+  }, [loadingMore, hasMore, page, fetchReports]);
 
   if (loading) return <LoadingScreen />;
 

@@ -16,7 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { CatchReport, RootStackParamList } from "../../types";
-import { getAllReportsForMap } from "../../utils/firestore";
+import { getAllReportsForMap } from "../../utils/database";
 import { useTheme } from "../../hooks/useTheme";
 import { formatTimeAgo, formatWeight } from "../../utils/formatting";
 import { Avatar } from "../../components/Avatar";
@@ -24,7 +24,6 @@ import { Avatar } from "../../components/Avatar";
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-// Default to centre of England
 const UK_REGION: Region = {
   latitude: 52.5,
   longitude: -1.5,
@@ -86,7 +85,6 @@ export function MapScreen() {
         </View>
       )}
 
-      {/* Detail Modal */}
       <Modal
         visible={!!selectedReport}
         transparent
@@ -110,27 +108,27 @@ export function MapScreen() {
             {selectedReport && (
               <>
                 <Image
-                  source={{ uri: selectedReport.photoUrl }}
+                  source={{ uri: selectedReport.photo_url }}
                   style={styles.modalImage}
                   resizeMode="cover"
                 />
                 <View style={styles.modalBody}>
                   <View style={styles.modalHeader}>
                     <Avatar
-                      uri={selectedReport.userAvatar}
-                      name={selectedReport.userName}
+                      uri={selectedReport.user_avatar}
+                      name={selectedReport.user_name}
                       size={32}
                     />
                     <View style={{ flex: 1, marginLeft: 10 }}>
                       <Text
                         style={[styles.modalUserName, { color: theme.colors.text }]}
                       >
-                        {selectedReport.userName}
+                        {selectedReport.user_name}
                       </Text>
                       <Text
                         style={[styles.modalTime, { color: theme.colors.textMuted }]}
                       >
-                        {formatTimeAgo(selectedReport.createdAt)}
+                        {formatTimeAgo(selectedReport.created_at)}
                       </Text>
                     </View>
                     <View
@@ -154,13 +152,13 @@ export function MapScreen() {
                         style={{ color: theme.colors.textSecondary, fontSize: 13 }}
                         numberOfLines={1}
                       >
-                        {selectedReport.locationName}
+                        {selectedReport.location_name}
                       </Text>
                     </View>
                     <View style={styles.detailChip}>
                       <Ionicons name="scale-outline" size={14} color={theme.colors.textMuted} />
                       <Text style={{ color: theme.colors.textSecondary, fontSize: 13 }}>
-                        {formatWeight(selectedReport.weightLb, selectedReport.weightOz)}
+                        {formatWeight(selectedReport.weight_lb, selectedReport.weight_oz)}
                       </Text>
                     </View>
                   </View>

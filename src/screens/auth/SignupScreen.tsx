@@ -11,13 +11,11 @@ import {
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { Timestamp } from "firebase/firestore";
 
-import { auth } from "../../config/firebase";
+import { supabase } from "../../config/supabase";
 import { RootStackParamList } from "../../types";
 import { signupSchema } from "../../utils/validation";
-import { createUserProfile } from "../../utils/firestore";
+import { createUserProfile } from "../../utils/database";
 import { useTheme } from "../../hooks/useTheme";
 import { Input } from "../../components/Input";
 import { Button } from "../../components/Button";
@@ -51,32 +49,32 @@ export function SignupScreen() {
 
     setLoading(true);
     try {
-      const credential = await createUserWithEmailAndPassword(
-        auth,
-        email.trim(),
-        password
-      );
-
-      await updateProfile(credential.user, { displayName: displayName.trim() });
-
-      await createUserProfile({
-        uid: credential.user.uid,
-        email: email.trim().toLowerCase(),
-        displayName: displayName.trim(),
-        postcode: postcode.trim().toUpperCase(),
-        createdAt: Timestamp.now(),
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: {
+            display_name: displayName.trim(),
+          },
+        },
       });
+
+      if (error) throw error;
+
+      if (data.user) {
+        await createUserProfile({
+          id: data.user.id,
+          email: email.trim().toLowerCase(),
+          display_name: displayName.trim(),
+          postcode: postcode.trim().toUpperCase(),
+        });
+      }
     } catch (err: any) {
-      console.error("Signup error:", JSON.stringify(err, null, 2));
-      console.error("Error code:", err.code);
-      console.error("Error message:", err.message);
-      const code = err.code;
-      if (code === "auth/email-already-in-use") {
+      console.error("Signup error:", err);
+      if (err.message?.includes("already registered")) {
         Alert.alert("Email In Use", "An account with this email already exists.");
-      } else if (code === "auth/weak-password") {
-        Alert.alert("Weak Password", "Please choose a stronger password.");
       } else {
-        Alert.alert("Error", `${err.code || "Unknown"}: ${err.message || "Something went wrong."}`);
+        Alert.alert("Error", err.message || "Something went wrong. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -139,7 +137,7 @@ export function SignupScreen() {
           />
 
           <Text style={[styles.ukNote, { color: theme.colors.textMuted, fontSize: theme.fontSize.xs }]}>
-            🇬🇧 UK postcode required – this app is for UK anglers only
+            UK postcode required - this app is for UK anglers only
           </Text>
 
           <Button

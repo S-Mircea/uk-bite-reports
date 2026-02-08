@@ -81,7 +81,7 @@ The app is UK-only by design. During signup, users must provide a valid UK postc
 | Language | TypeScript 5.9 |
 | UI | React Native 0.81 |
 | Navigation | React Navigation 7 (native-stack + bottom-tabs) |
-| Backend | Firebase 12 (Authentication, Firestore, Storage) |
+| Backend | Supabase (Auth, PostgreSQL, Storage) |
 | Maps | react-native-maps |
 | Camera/Photos | expo-image-picker, expo-camera |
 | Location | expo-location (GPS + reverse geocoding) |
@@ -96,18 +96,18 @@ The app is UK-only by design. During signup, users must provide a valid UK postc
 ```
 src/
 ├── config/
-│   └── firebase.ts              # Firebase initialisation (gitignored)
+│   └── supabase.ts              # Supabase client initialisation (gitignored)
 ├── types/
 │   └── index.ts                 # TypeScript interfaces + UK fish species list
 ├── theme/
 │   └── index.ts                 # Light/dark theme with fishing colours
 ├── hooks/
-│   ├── useAuth.ts               # Firebase auth state listener
+│   ├── useAuth.ts               # Supabase auth state listener
 │   └── useTheme.ts              # System colour scheme hook
 ├── utils/
 │   ├── validation.ts            # Zod schemas for forms
 │   ├── formatting.ts            # UK date/weight/length formatters
-│   └── firestore.ts             # All Firestore CRUD operations
+│   └── database.ts              # All Supabase CRUD operations
 ├── components/
 │   ├── Avatar.tsx               # Profile image or initials fallback
 │   ├── Button.tsx               # Multi-variant button component
@@ -138,7 +138,7 @@ src/
 
 - Node.js 18+
 - Expo Go app on your phone ([Android](https://play.google.com/store/apps/details?id=host.exp.exponent) / [iOS](https://apps.apple.com/app/expo-go/id982107779))
-- A Firebase project
+- A Supabase project (free tier works)
 
 ### Installation
 
@@ -153,18 +153,17 @@ src/
    npm install
    ```
 
-3. Set up Firebase:
-   - Go to [console.firebase.google.com](https://console.firebase.google.com) and create a project
-   - Enable **Email/Password** authentication
-   - Create a **Firestore** database (start in test mode)
-   - Enable **Storage** (start in test mode)
-   - Register a web app and copy the config
+3. Set up Supabase:
+   - Go to [supabase.com](https://supabase.com) and create a new project
+   - Go to **SQL Editor** and run the entire contents of `supabase-schema.sql` — this creates all tables, RLS policies, storage bucket, and RPC functions
+   - Go to **Authentication** > **Providers** > **Email** > turn off **"Confirm email"** (for development)
+   - Go to **Settings** > **API** and copy your **Project URL** and **anon public key**
 
-4. Create the Firebase config file:
+4. Create the Supabase config file:
    ```bash
-   cp src/config/firebase.ts.example src/config/firebase.ts
+   cp src/config/supabase.ts.example src/config/supabase.ts
    ```
-   Then edit `src/config/firebase.ts` and paste your Firebase credentials.
+   Then edit `src/config/supabase.ts` and paste your Supabase URL and anon key.
 
 5. Start the app:
    ```bash
@@ -175,14 +174,18 @@ src/
 
 ---
 
-## Firebase Collections
+## Database Schema
 
-The app uses three main Firestore collections:
+The app uses four PostgreSQL tables in Supabase with Row Level Security (RLS):
 
+- **`profiles`** — User profiles (id, display_name, email, postcode, avatar_url) linked to Supabase Auth
 - **`reports`** — Catch reports with photo URL, species, weight, location coordinates, timestamps, like/comment counts
-- **`users`** — User profiles with display name, email, postcode, avatar URL
-- **`comments`** — Comments linked to reports by `reportId`
-- **`likes`** — Like records with composite ID (`reportId_userId`) to prevent duplicates
+- **`comments`** — Comments linked to reports by `report_id`
+- **`likes`** — Like records with unique constraint on (`report_id`, `user_id`) to prevent duplicates
+
+Plus three RPC functions (`increment_likes`, `decrement_likes`, `increment_comments`) for atomic count updates, and a `report-photos` storage bucket for catch images.
+
+The full schema is in `supabase-schema.sql`.
 
 ---
 
@@ -203,7 +206,7 @@ These are features I'm planning to add in future iterations:
 - [ ] Admin moderation queue for reported content
 - [ ] User profile photo editing
 - [ ] Follow other anglers and see their catches in a dedicated feed
-- [ ] Offline support with Firestore local persistence
+- [ ] Offline support with Supabase local persistence
 - [ ] Share reports externally (WhatsApp, social media)
 - [ ] Weather data integration for catch conditions
 
@@ -215,4 +218,4 @@ This project is for educational purposes as part of my Computer Science coursewo
 
 ---
 
-**Built with React Native, Firebase, and a love for fishing.**
+**Built with React Native, Supabase, and a love for fishing.**

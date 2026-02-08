@@ -8,14 +8,13 @@ import {
   Alert,
   RefreshControl,
 } from "react-native";
-import { signOut } from "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-import { auth } from "../../config/firebase";
+import { supabase } from "../../config/supabase";
 import { CatchReport, RootStackParamList, User } from "../../types";
-import { getUserReports, getUserProfile } from "../../utils/firestore";
+import { getUserReports, getUserProfile } from "../../utils/database";
 import { useTheme } from "../../hooks/useTheme";
 import { useAuth } from "../../hooks/useAuth";
 import { Avatar } from "../../components/Avatar";
@@ -39,8 +38,8 @@ export function ProfileScreen() {
     if (!user) return;
     try {
       const [profileData, reportsData] = await Promise.all([
-        getUserProfile(user.uid),
-        getUserReports(user.uid),
+        getUserProfile(user.id),
+        getUserReports(user.id),
       ]);
       setProfile(profileData);
       setReports(reportsData);
@@ -67,7 +66,7 @@ export function ProfileScreen() {
       {
         text: "Log Out",
         style: "destructive",
-        onPress: () => signOut(auth),
+        onPress: () => supabase.auth.signOut(),
       },
     ]);
   }
@@ -75,7 +74,7 @@ export function ProfileScreen() {
   if (loading) return <LoadingScreen />;
 
   const displayName =
-    profile?.displayName ?? user?.displayName ?? "Angler";
+    profile?.display_name ?? user?.user_metadata?.display_name ?? "Angler";
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -92,9 +91,8 @@ export function ProfileScreen() {
         )}
         ListHeaderComponent={
           <View style={styles.header}>
-            {/* Avatar & Name */}
             <Avatar
-              uri={profile?.avatarUrl}
+              uri={profile?.avatar_url}
               name={displayName}
               size={80}
             />
@@ -113,7 +111,6 @@ export function ProfileScreen() {
               </View>
             )}
 
-            {/* Stats */}
             <View
               style={[
                 styles.statsCard,
@@ -138,7 +135,7 @@ export function ProfileScreen() {
               />
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, { color: theme.colors.primary }]}>
-                  {reports.reduce((sum, r) => sum + r.likesCount, 0)}
+                  {reports.reduce((sum, r) => sum + r.likes_count, 0)}
                 </Text>
                 <Text style={[styles.statLabel, { color: theme.colors.textMuted }]}>
                   Likes
@@ -146,7 +143,6 @@ export function ProfileScreen() {
               </View>
             </View>
 
-            {/* Logout */}
             <TouchableOpacity
               onPress={handleLogout}
               style={[
@@ -163,7 +159,6 @@ export function ProfileScreen() {
               </Text>
             </TouchableOpacity>
 
-            {/* Section title */}
             <Text
               style={[styles.sectionTitle, { color: theme.colors.text }]}
             >

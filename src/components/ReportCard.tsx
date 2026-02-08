@@ -39,17 +39,17 @@ export function ReportCard({ report, onPress }: ReportCardProps) {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Avatar uri={report.userAvatar} name={report.userName} size={36} />
+        <Avatar uri={report.user_avatar} name={report.user_name} size={36} />
         <View style={styles.headerText}>
           <Text
             style={[styles.userName, { color: theme.colors.text, fontSize: theme.fontSize.md }]}
           >
-            {report.userName}
+            {report.user_name}
           </Text>
           <Text
             style={[styles.time, { color: theme.colors.textMuted, fontSize: theme.fontSize.xs }]}
           >
-            {formatTimeAgo(report.createdAt)}
+            {formatTimeAgo(report.created_at)}
           </Text>
         </View>
         <View
@@ -67,7 +67,7 @@ export function ReportCard({ report, onPress }: ReportCardProps) {
       </View>
 
       {/* Photo */}
-      <Image source={{ uri: report.photoUrl }} style={styles.photo} resizeMode="cover" />
+      <Image source={{ uri: report.photo_url }} style={styles.photo} resizeMode="cover" />
 
       {/* Details */}
       <View style={styles.details}>
@@ -77,7 +77,7 @@ export function ReportCard({ report, onPress }: ReportCardProps) {
             style={[styles.detailText, { color: theme.colors.textSecondary, fontSize: theme.fontSize.sm }]}
             numberOfLines={1}
           >
-            {report.locationName}
+            {report.location_name}
           </Text>
         </View>
 
@@ -86,7 +86,7 @@ export function ReportCard({ report, onPress }: ReportCardProps) {
           <Text
             style={[styles.detailText, { color: theme.colors.textSecondary, fontSize: theme.fontSize.sm }]}
           >
-            {formatWeight(report.weightLb, report.weightOz)}
+            {formatWeight(report.weight_lb, report.weight_oz)}
           </Text>
         </View>
 
@@ -104,13 +104,13 @@ export function ReportCard({ report, onPress }: ReportCardProps) {
           <View style={styles.actionItem}>
             <Ionicons name="heart-outline" size={18} color={theme.colors.textMuted} />
             <Text style={[styles.actionCount, { color: theme.colors.textMuted, fontSize: theme.fontSize.sm }]}>
-              {report.likesCount}
+              {report.likes_count}
             </Text>
           </View>
           <View style={styles.actionItem}>
             <Ionicons name="chatbubble-outline" size={16} color={theme.colors.textMuted} />
             <Text style={[styles.actionCount, { color: theme.colors.textMuted, fontSize: theme.fontSize.sm }]}>
-              {report.commentsCount}
+              {report.comments_count}
             </Text>
           </View>
         </View>

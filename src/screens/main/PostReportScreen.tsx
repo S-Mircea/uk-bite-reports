@@ -14,13 +14,11 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
-import { Timestamp } from "firebase/firestore";
 
 import { UK_FISH_SPECIES } from "../../types";
 import { useTheme } from "../../hooks/useTheme";
 import { useAuth } from "../../hooks/useAuth";
-import { getUserProfile } from "../../utils/firestore";
-import { createReport, uploadImage } from "../../utils/firestore";
+import { getUserProfile, createReport, uploadImage } from "../../utils/database";
 import { Button } from "../../components/Button";
 
 export function PostReportScreen() {
@@ -59,7 +57,6 @@ export function PostReportScreen() {
       setLatitude(loc.coords.latitude);
       setLongitude(loc.coords.longitude);
 
-      // Reverse geocode
       const [address] = await Location.reverseGeocodeAsync({
         latitude: loc.coords.latitude,
         longitude: loc.coords.longitude,
@@ -128,25 +125,25 @@ export function PostReportScreen() {
 
     setSubmitting(true);
     try {
-      const photoPath = `reports/${user!.uid}/${Date.now()}.jpg`;
-      const photoUrl = await uploadImage(photoUri, photoPath);
+      const photoPath = `${user!.id}/${Date.now()}.jpg`;
+      const photo_url = await uploadImage(photoUri, photoPath);
 
-      const profile = await getUserProfile(user!.uid);
+      const profile = await getUserProfile(user!.id);
 
       await createReport({
-        userId: user!.uid,
-        userName: profile?.displayName ?? user!.displayName ?? "Angler",
-        userAvatar: profile?.avatarUrl,
-        photoUrl,
+        user_id: user!.id,
+        user_name: profile?.display_name ?? user!.user_metadata?.display_name ?? "Angler",
+        user_avatar: profile?.avatar_url,
+        photo_url,
         species,
-        weightLb: weightLb ? parseFloat(weightLb) : undefined,
-        weightOz: weightOz ? parseFloat(weightOz) : undefined,
-        lengthInches: lengthInches ? parseFloat(lengthInches) : undefined,
-        locationName,
+        weight_lb: weightLb ? parseFloat(weightLb) : undefined,
+        weight_oz: weightOz ? parseFloat(weightOz) : undefined,
+        length_inches: lengthInches ? parseFloat(lengthInches) : undefined,
+        location_name: locationName,
         latitude: latitude ?? 52.5,
         longitude: longitude ?? -1.5,
         notes: notes.trim(),
-        caughtAt: Timestamp.now(),
+        caught_at: new Date().toISOString(),
       });
 
       Alert.alert("Posted!", "Your catch report has been shared.", [
@@ -160,9 +157,9 @@ export function PostReportScreen() {
       setWeightOz("");
       setLengthInches("");
       setNotes("");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Submit error:", err);
-      Alert.alert("Error", "Failed to post report. Please try again.");
+      Alert.alert("Error", err.message || "Failed to post report. Please try again.");
     } finally {
       setSubmitting(false);
     }
