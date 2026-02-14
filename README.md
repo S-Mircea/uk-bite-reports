@@ -2,7 +2,7 @@
 
 A real-time, community-driven mobile app for UK anglers to share catch reports, discover fishing spots, and connect with fellow fishermen across the country.
 
-Built by **Mircea Serban** — Computer Science student, angler, and mobile dev enthusiast.
+Built by **Mircea Serban** — Computer Science graduate, angler, and mobile dev enthusiast.
 
 ---
 
